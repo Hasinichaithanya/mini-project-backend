@@ -211,6 +211,7 @@ app.put("/change-password", async (req, res) => {
 
 app.post("/send-mail", async (req, res) => {
   const { chefId, userId, time, date, selectedItems } = req.body;
+  console.log(chefId, userId, time, selectedItems);
   var transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -242,21 +243,23 @@ app.post("/send-mail", async (req, res) => {
       { _id: new mongodb.ObjectId(chefId) },
       { $push: { orders: { time, date, selectedItems } } }
     );
-
-    console.log(chef, user);
-    console.log(userUpdateResult, chefUpdateResult);
+    console.log(user, user.email, "245");
     const mailOptions = {
       from: user.email,
       to: ["hasinichaithanya04@gmail.com", chef.email],
       subject: "New Booking Notification",
-      text: `You have a new booking on:\n\nDate: ${date}\nTime: ${time}. From ${user.name} and they ordered for ${selectedItems}`,
+      text: `You have a new booking on:\n\nDate: ${date}\nTime: ${time}. \n\n From ${user.name} ${user.email} and they ordered for ${selectedItems}`,
     };
     const response = await transporter.sendMail(mailOptions);
-    console.log(response);
-    return res.json({ message: "Email sent successfully" });
+    return res.json({
+      message: "Booked and Email sent successfully",
+      status: "success",
+    });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ error: "Failed to send email" });
+    return res
+      .status(500)
+      .json({ error: "Failed to send email", status: "Failed" });
   }
 });
 
